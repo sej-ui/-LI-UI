@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>해외 LI 통합 대시보드</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* 기존 스타일 유지 및 차트 가독성 향상 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; background: #E8F4FD; color: #333; min-height: 100vh; }
+.page { display: none; }
+.page.active { display: block; }
+.topnav { background: #fff; padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100; }
+.topnav-title { font-size: 1.15rem; font-weight: 700; color: #1565C0; }
+.main-content { padding: 20px 32px; max-width: 1440px; margin: 0 auto; }
+.section-hdr { font-size: 0.95rem; font-weight: 700; color: #1565C0; margin: 20px 0 10px; display: flex; align-items: center; gap: 8px; }
+.freight-chart-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.07); padding:18px; margin-bottom:14px; height:500px; }
+/* 국가별 고채도 색상 적용을 위한 헬퍼 스타일 생략 가능 (JS에서 처리) */
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="topnav-title">🌏 해외 LI 통합 대시보드</div>
+  <button onclick="document.getElementById('fileInput').click()" style="padding:8px 16px; background:#1565C0; color:#fff; border:none; border-radius:8px; cursor:pointer;">📂 엑셀 업로드</button>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none;" onchange="handleFile(event)">
+</div>
+
+<div id="page-main" class="page active">
+  <div class="main-content">
+    <div class="section-hdr">
+      📊 물류비 동향 및 통계
+      <button onclick="goPage('page-freight')" style="margin-left:auto; padding:6px 12px; border-radius:15px; border:1px solid #1565C0; background:#fff; color:#1565C0; cursor:pointer;">📈 전체 그래프 한눈에 보기 →</button>
+    </div>
+    <div class="freight-chart-card">
+      <canvas id="mainFreightChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div id="page-freight" class="page">
+    <div class="main-content">
+        <button onclick="goPage('page-main')" style="margin-bottom:10px; cursor:pointer;">◀ 뒤로가기</button>
+        <div class="freight-chart-card">
+            <canvas id="detailFreightChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+// 고대비/고채도 색상 팔레트 (요청하신 #bada55 느낌의 명도/채도 적용)
+const HIGH_CONTRAST_COLORS = [
+    '#FF3D00', '#D4E157', '#00E676', '#00B0FF', '#651FFF', 
+    '#F50057', '#FFEA00', '#00E5FF', '#76FF03', '#C6FF00',
+    '#FF9100', '#FF1744', '#1DE9B6', '#3D5AFE', '#AA00FF'
+];
+
+let allData = [];
+
+function goPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+}
+
+function handleFile(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        const data = evt.target.result;
+        const workbook = XLSX.read(data, {type: 'binary'});
+        const sheetName = workbook.SheetNames[0];
+        allData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+        renderCharts();
+    };
+    reader.readAsBinaryString(file);
+}
+
+function renderCharts() {
+    // 1. 데이터 가공 (운임 날짜 기준 & 월 단위 집계)
+    const monthlyStats = {}; // { 'YYYY-MM': { '국가': 총액 } }
+    const countries = [...new Set(allData.map(d => d['국가']))];
+    
+    allData.forEach(row => {
+        // [운임] 란의 날짜 데이터를 추출 (엑셀 필드명에 맞춰 수정 필요)
+        const dateRaw = row['운임날짜'] || row['운임']; 
+        if(!dateRaw) return;
+        
+        const d = new Date(dateRaw);
+        if(isNaN(d)) return;
+        
+        const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const country = row['국가'];
+        const amt = parseFloat(String(row['금액'] || 0).replace(/,/g, ''));
+        
+        if(!monthlyStats[monthKey]) monthlyStats[monthKey] = {};
+        if(!monthlyStats[monthKey][country]) monthlyStats[monthKey][country] = 0;
+        monthlyStats[monthKey][country] += amt;
+    });
+
+    const sortedMonths = Object.keys(monthlyStats).sort();
+    
+    // 2. Chart.js 데이터셋 생성
+    const datasets = countries.map((country, idx) => ({
+        label: country,
+        data: sortedMonths.map(m => monthlyStats[m][country] || 0),
+        borderColor: HIGH_CONTRAST_COLORS[idx % HIGH_CONTRAST_COLORS.length],
+        backgroundColor: HIGH_CONTRAST_COLORS[idx % HIGH_CONTRAST_COLORS.length],
+        borderWidth: 3,
+        tension: 0.3, // 곡선 처리
+        pointRadius: 5 // 월별 점 크기 확대
+    }));
+
+    // 3. 그래프 그리기
+    const ctx = document.getElementById('mainFreightChart').getContext('2d');
+    if(window.myChart) window.myChart.destroy();
+    
+    window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: sortedMonths, datasets: datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: '금액' } },
+                x: { title: { display: true, text: '집계월 (운임 기준)' } }
+            }
+        }
+    });
+}
+</script>
+</body>
+</html>
