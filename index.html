@@ -424,7 +424,12 @@ tr.detail-expand-row:last-child td { border-bottom: none !important; }
     <div class="freight-trend-section">
       <div class="section-hdr">📊 물류비 동향 및 통계
         <span style="font-size:0.75rem;color:#999;font-weight:400;">(클릭 시 물류비 차트)</span>
-        <button onclick="openFreightPage(\'\',\'\' )" style="margin-left:auto;padding:4px 14px;font-size:0.76rem;font-weight:700;border:1.5px solid #1565C0;border-radius:16px;background:#fff;color:#1565C0;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background=\'#E3F2FD\'" onmouseout="this.style.background=\'#fff\'">📈 전체 그래프 한눈에 보기 →</button>
+        <!-- 수정: 전체 그래프 한눈에 보기 → 가 실제로 openFreightPage('', '') 호출 -->
+        <button onclick="openFreightPage('', '')"
+          style="margin-left:auto;padding:4px 14px;font-size:0.76rem;font-weight:700;border:1.5px solid #1565C0;border-radius:16px;background:#fff;color:#1565C0;cursor:pointer;transition:all 0.15s;"
+          onmouseover="this.style.background='#E3F2FD'" onmouseout="this.style.background='#fff'">
+          📈 전체 그래프 한눈에 보기 →
+        </button>
       </div>
       <div class="freight-trend-list" id="freightTrendList">
         <div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">데이터 로딩 중...</div></div>
@@ -646,21 +651,21 @@ const GUIDE_COLORS = [
 const GUIDE_ICONS = ['📋','🛒','🛍️','💰','🧾','📑','📦','🌐','💡'];
 
 // ══════════════════════════════════════════════
-// DUMMY DATA
+// DUMMY DATA (운임 날짜 freightDate 추가)
 // ══════════════════════════════════════════════
 function genDummy() {
   const d = n => { const dt = new Date(TODAY); dt.setDate(dt.getDate()+n); return dt; };
   const kor = [
-    {manager:'신은정',country:'독일',brand:'편강율',transport:'해상',invoice:'DEAM260101',qty:3,shipDate:d(-20),etd:d(-14),eta:d(-10),arrivalDate:null,freight:1200000,customs:85000,localCost:50000,taxReport:null,note:'',seaFreight:1200000},
-    {manager:'신은정',country:'독일',brand:'편강율',transport:'해상',invoice:'DEAM260201',qty:5,shipDate:d(-10),etd:d(-4),eta:d(20),arrivalDate:null,freight:980000,customs:72000,localCost:null,taxReport:null,note:'',seaFreight:980000},
-    {manager:'신은정',country:'영국',brand:'편강율',transport:'해상',invoice:'UKAM260101',qty:2,shipDate:d(-25),etd:d(-19),eta:d(-20),arrivalDate:d(-18),freight:1500000,customs:110000,localCost:60000,taxReport:d(-16),note:'',seaFreight:1500000},
-    {manager:'이주현',country:'일본',brand:'편강율',transport:'항공',invoice:'JPAM260101',qty:4,shipDate:d(-15),etd:d(-14),eta:d(-20),arrivalDate:d(-19),freight:320000,customs:45000,localCost:20000,taxReport:d(-17),note:''},
-    {manager:'이주현',country:'캐나다',brand:'편강율',transport:'해상',invoice:'CAAM260101',qty:7,shipDate:d(-18),etd:d(-12),eta:d(-15),arrivalDate:null,freight:2100000,customs:155000,localCost:null,taxReport:null,note:'재검토 필요',seaFreight:2100000},
-    {manager:'김민지',country:'미국',brand:'아이소이',transport:'항공',invoice:'USAM260101',qty:3,shipDate:d(-5),etd:d(-4),eta:d(2),arrivalDate:null,freight:450000,customs:null,localCost:null,taxReport:null,note:''},
-    {manager:'김민지',country:'싱가폴',brand:'라운드랩',transport:'해상',invoice:'SGAM260101',qty:6,shipDate:d(-22),etd:d(-16),eta:d(-30),arrivalDate:d(-25),freight:880000,customs:62000,localCost:35000,taxReport:d(-23),note:'',seaFreight:880000},
-    {manager:'신은정',country:'호주',brand:'편강율',transport:'해상',invoice:'AUAM260101',qty:4,shipDate:d(-28),etd:d(-22),eta:d(-60),arrivalDate:d(-55),freight:1750000,customs:130000,localCost:75000,taxReport:d(-52),note:'',seaFreight:1750000},
-    {manager:'이주현',country:'독일',brand:'아이소이',transport:'항공',invoice:'DEAI260101',qty:2,shipDate:d(-8),etd:d(-7),eta:d(-5),arrivalDate:null,freight:280000,customs:38000,localCost:null,taxReport:null,note:''},
-    {manager:'김민지',country:'영국',brand:'라운드랩',transport:'해상',invoice:'UKRL260101',qty:8,shipDate:d(-12),etd:d(-6),eta:d(5),arrivalDate:null,freight:1650000,customs:120000,localCost:null,taxReport:null,note:'',seaFreight:1650000},
+    {manager:'신은정',country:'독일',brand:'편강율',transport:'해상',invoice:'DEAM260101',qty:3,shipDate:d(-20),etd:d(-14),eta:d(-10),arrivalDate:null,freight:1200000,freightDate:d(-18),customs:85000,localCost:50000,taxReport:null,note:'',seaFreight:1200000},
+    {manager:'신은정',country:'독일',brand:'편강율',transport:'해상',invoice:'DEAM260201',qty:5,shipDate:d(-10),etd:d(-4),eta:d(20),arrivalDate:null,freight:980000,freightDate:d(-8),customs:72000,localCost:null,taxReport:null,note:'',seaFreight:980000},
+    {manager:'신은정',country:'영국',brand:'편강율',transport:'해상',invoice:'UKAM260101',qty:2,shipDate:d(-25),etd:d(-19),eta:d(-20),arrivalDate:d(-18),freight:1500000,freightDate:d(-23),customs:110000,localCost:60000,taxReport:d(-16),note:'',seaFreight:1500000},
+    {manager:'이주현',country:'일본',brand:'편강율',transport:'항공',invoice:'JPAM260101',qty:4,shipDate:d(-15),etd:d(-14),eta:d(-20),arrivalDate:d(-19),freight:320000,freightDate:d(-14),customs:45000,localCost:20000,taxReport:d(-17),note:''},
+    {manager:'이주현',country:'캐나다',brand:'편강율',transport:'해상',invoice:'CAAM260101',qty:7,shipDate:d(-18),etd:d(-12),eta:d(-15),arrivalDate:null,freight:2100000,freightDate:d(-16),customs:155000,localCost:null,taxReport:null,note:'재검토 필요',seaFreight:2100000},
+    {manager:'김민지',country:'미국',brand:'아이소이',transport:'항공',invoice:'USAM260101',qty:3,shipDate:d(-5),etd:d(-4),eta:d(2),arrivalDate:null,freight:450000,freightDate:d(-4),customs:null,localCost:null,taxReport:null,note:''},
+    {manager:'김민지',country:'싱가폴',brand:'라운드랩',transport:'해상',invoice:'SGAM260101',qty:6,shipDate:d(-22),etd:d(-16),eta:d(-30),arrivalDate:d(-25),freight:880000,freightDate:d(-21),customs:62000,localCost:35000,taxReport:d(-23),note:'',seaFreight:880000},
+    {manager:'신은정',country:'호주',brand:'편강율',transport:'해상',invoice:'AUAM260101',qty:4,shipDate:d(-28),etd:d(-22),eta:d(-60),arrivalDate:d(-55),freight:1750000,freightDate:d(-26),customs:130000,localCost:75000,taxReport:d(-52),note:'',seaFreight:1750000},
+    {manager:'이주현',country:'독일',brand:'아이소이',transport:'항공',invoice:'DEAI260101',qty:2,shipDate:d(-8),etd:d(-7),eta:d(-5),arrivalDate:null,freight:280000,freightDate:d(-7),customs:38000,localCost:null,taxReport:null,note:''},
+    {manager:'김민지',country:'영국',brand:'라운드랩',transport:'해상',invoice:'UKRL260101',qty:8,shipDate:d(-12),etd:d(-6),eta:d(5),arrivalDate:null,freight:1650000,freightDate:d(-10),customs:120000,localCost:null,taxReport:null,note:'',seaFreight:1650000},
   ];
   const fc = [
     {manager:'신은정',country:'독일',brand:'편강율',transport:'LTL',refNo:'REF-DE-001',qty:3,shipDate:d(-20),arrivalDate:d(-15),caseVal:'Y',localCost:null,note:''},
@@ -739,7 +744,10 @@ function parseKor3pl(wb) {
     invoice:r[4]||'', qty:r[5]||0,
     shipDate:excelDateToJS(r[6]), etd:excelDateToJS(r[7]),
     eta:excelDateToJS(r[8]), arrivalDate:excelDateToJS(r[9]),
-    freight:r[10], customs:r[11], localCost:r[12],
+    freight:r[10],
+    // [운임]란에 날짜가 들어온 경우를 freightDate 로 인식
+    freightDate: excelDateToJS(r[10]),
+    customs:r[11], localCost:r[12],
     taxReport:excelDateToJS(r[13]), note:r[14]||'',
     seaFreight:r[15]||null
   }));
@@ -958,14 +966,16 @@ function renderMainKpi() {
 // ══════════════════════════════════════════════
 // COUNTRY LIST
 // ══════════════════════════════════════════════
+
+// 국가 색상 팔레트 (밝고 채도 높은 계열, #bada55 비슷 톤)
 const COLORS = [
-  '#1565C0','#E53935','#43A047','#FB8C00','#8E24AA','#00ACC1',
-  '#F06292','#5C6BC0','#26A69A','#FF7043','#66BB6A','#AB47BC',
-  '#0097A7','#F4511E','#558B2F','#6D4C41','#283593','#00838F',
-  '#AD1457','#4527A0','#2E7D32','#BF360C','#37474F','#C62828'
+  '#bada55', '#ffb347', '#ff6f69', '#a29bfe', '#74b9ff', '#55efc4',
+  '#ffeaa7', '#fab1a0', '#fd79a8', '#81ecec', '#ffeaa7', '#fdff6b',
+  '#ff9ff3', '#00cec9', '#ff7675', '#6c5ce7', '#00d1b2', '#ffc75f',
+  '#f9f871', '#ffadad', '#9b5de5', '#00bbf9', '#5efc82', '#ff9f1c'
 ];
 
-// 국가명 해시 → 고정 색상 (순서 무관, 항상 동일 색 반환)
+// 국가명 해시 → 고정 색상
 const _countryColorCache = {};
 function getCountryColor(country) {
   if (_countryColorCache[country]) return _countryColorCache[country];
@@ -1082,7 +1092,6 @@ function renderListPage() {
   const stColor = { done:'#43A047', delayed:'#E53935', ongoing:'#E65100' };
   const dsLabel = { critical:'🔴 심각', warning:'🟡 지연', ok:'🟢 정상' };
 
-  // [#5] 비고 컬럼 제거(11열), [#6] 행 클릭 토글, [#9] 수량 단위
   var html = '<table><thead><tr>' +
     '<th>국가</th><th>담당자</th><th>브랜드</th><th>운송방법</th>' +
     '<th>인보이스 번호</th><th>수량</th><th>출고일</th>' +
@@ -1094,7 +1103,6 @@ function renderListPage() {
     var ds  = getDelayStatus(r);
     var rid = 'lk'+idx;
     var etaBadge = r.eta ? '<span class="eta-badge '+ds+'">'+dsLabel[ds]+'</span>' : '';
-    // [#3] 입고일: 미입고 표시
     var arrivalTd = r.arrivalDate ? fmtDate(r.arrivalDate) : '미입고';
 
     html += '<tr class="data-row" onclick="toggleDetailRow(\''+rid+'\')">' +
@@ -1163,564 +1171,4 @@ function openCountryDetail(country) {
 function switchTab(tab) {
   currentTab = tab;
   document.getElementById('tabKor').classList.toggle('active', tab==='kor');
-  document.getElementById('tab3pl').classList.toggle('active', tab==='3pl');
-  renderDetail();
-}
-
-function renderDetail() {
-  const mgr    = document.getElementById('dFilterManager').value;
-  const brnd   = document.getElementById('dFilterBrand').value;
-  const fromV  = document.getElementById('dDateFrom').value;
-  const toV    = document.getElementById('dDateTo').value;
-  const from   = fromV ? new Date(fromV) : null;
-  const to     = toV   ? new Date(toV)   : null;
-  const stFil  = document.getElementById('dFilterStatus').value;
-  const search = document.getElementById('dSearch').value.toLowerCase().trim();
-
-  const wrap    = document.getElementById('detailTableWrap');
-  const stLabel = { done:'✅ 완료', delayed:'⚠️ 지연', ongoing:'🔄 진행중' };
-  const stColor = { done:'#43A047', delayed:'#E53935', ongoing:'#E65100' };
-  const dsLabel = { critical:'🔴 심각', warning:'🟡 지연', ok:'🟢 정상' };
-
-  if (currentTab === 'kor') {
-    let rows = appData.kor3pl.filter(r=>r.country===currentCountry);
-    if (mgr)      rows=rows.filter(r=>r.manager===mgr);
-    if (brnd)     rows=rows.filter(r=>r.brand===brnd);
-    if (from||to) rows=rows.filter(r=>inRange(r.shipDate,from,to));
-    if (stFil)    rows=rows.filter(r=>getRowStatus(r)===stFil);
-    if (search)   rows=rows.filter(r=>(r.invoice||'').toLowerCase().includes(search));
-    const sOrd={critical:0,warning:1,ok:2};
-    rows.sort((a,b)=>sOrd[getDelayStatus(a)]-sOrd[getDelayStatus(b)]);
-    document.getElementById('detailResultCount').textContent='총 '+rows.length+'건';
-    if (!rows.length){wrap.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">해당 조건의 데이터가 없습니다</div></div>';return;}
-
-    // [#5] 비고 컬럼 제거(10열), [#3] 입고일 미입고, [#6] 행 클릭 토글, [#9] 수량 단위
-    var html = '<table><thead><tr>' +
-      '<th>담당자</th><th>브랜드</th><th>운송방법</th><th>인보이스 번호</th>' +
-      '<th>수량</th><th>출고일</th><th>ETD</th><th>ETA</th><th>입고일</th><th>상태</th>' +
-      '</tr></thead><tbody>';
-
-    rows.forEach(function(r, idx) {
-      var st  = getRowStatus(r);
-      var ds  = getDelayStatus(r);
-      var rid = 'dk'+idx;
-      var etaBadge   = r.eta ? '<span class="eta-badge '+ds+'">'+dsLabel[ds]+'</span>' : '';
-      var arrivalTd  = r.arrivalDate ? fmtDate(r.arrivalDate) : '미입고';
-
-      html += '<tr class="data-row" onclick="toggleDetailRow(\''+rid+'\')">' +
-        '<td>'+escHtml(r.manager)+'</td>' +
-        '<td>'+escHtml(r.brand)+'</td>' +
-        '<td>'+escHtml(r.transport)+'</td>' +
-        '<td><strong>'+escHtml(r.invoice)+'</strong></td>' +
-        '<td>'+getQtyLabel(r)+'</td>' +
-        '<td>'+fmtDate(r.shipDate)+'</td>' +
-        '<td>'+fmtDate(r.etd)+'</td>' +
-        '<td><div class="eta-cell">'+fmtDate(r.eta)+etaBadge+'</div></td>' +
-        '<td>'+arrivalTd+'</td>' +
-        '<td><span style="color:'+stColor[st]+';font-weight:700;">'+stLabel[st]+'</span></td>' +
-        '</tr>' +
-        '<tr id="'+rid+'" class="detail-expand-row" style="display:none;">' +
-        '<td colspan="10"><div class="detail-expand-inner"><div class="detail-expand-grid">' +
-        '<div class="detail-field"><span class="detail-field-label">운임</span><span class="detail-field-val">'+fmtNum(r.freight)+'</span></div>' +
-        '<div class="detail-field"><span class="detail-field-label">통관료</span><span class="detail-field-val">'+fmtNum(r.customs)+'</span></div>' +
-        '<div class="detail-field"><span class="detail-field-label">현지비용</span><span class="detail-field-val">'+fmtNum(r.localCost)+'</span></div>' +
-        '<div class="detail-field"><span class="detail-field-label">세금신고</span><span class="detail-field-val">'+(r.taxReport ? fmtDate(r.taxReport) : '—')+'</span></div>' +
-        '<div class="detail-field" style="grid-column:span 2;"><span class="detail-field-label">비고</span><span class="detail-field-val">'+(escHtml(r.note)||'—')+'</span></div>' +
-        '</div></div></td></tr>';
-    });
-
-    html += '</tbody></table>';
-    wrap.innerHTML = html;
-
-  } else {
-    // [#8] 3PL-FC: 담당자/브랜드/운송방법/Ref.No/수량/출고일/입고일/Case/현지비용 (비고 없음)
-    let rows = appData.fc3pl.filter(r=>r.country===currentCountry);
-    if (mgr)      rows=rows.filter(r=>r.manager===mgr);
-    if (brnd)     rows=rows.filter(r=>r.brand===brnd);
-    if (from||to) rows=rows.filter(r=>inRange(r.shipDate,from,to));
-    if (stFil)    rows=rows.filter(r=>(r.arrivalDate?'done':'ongoing')===stFil);
-    if (search)   rows=rows.filter(r=>(r.refNo||'').toLowerCase().includes(search));
-    document.getElementById('detailResultCount').textContent='총 '+rows.length+'건';
-    if (!rows.length){wrap.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">해당 조건의 데이터가 없습니다</div></div>';return;}
-
-    // [#6] 3PL-FC 행 클릭 토글 (현지비용, 비고), [#7] localCost 렌더링, [#9] 수량 단위
-    var html = '<table><thead><tr>' +
-      '<th>담당자</th><th>브랜드</th><th>운송방법</th><th>Ref.No</th>' +
-      '<th>수량</th><th>출고일</th><th>입고일</th><th>Case</th><th>현지비용</th>' +
-      '</tr></thead><tbody>';
-
-    rows.forEach(function(r, idx) {
-      var lcDisplay = fmtLocalCost(r.localCost);
-
-      html += '<tr>' +
-        '<td>'+escHtml(r.manager)+'</td>' +
-        '<td>'+escHtml(r.brand)+'</td>' +
-        '<td>'+escHtml(r.transport)+'</td>' +
-        '<td><strong>'+escHtml(r.refNo)+'</strong></td>' +
-        '<td>'+getQtyLabel(r)+'</td>' +
-        '<td>'+fmtDate(r.shipDate)+'</td>' +
-        '<td>'+fmtDate(r.arrivalDate)+'</td>' +
-        '<td>'+(r.caseVal||'—')+'</td>' +
-        '<td>'+lcDisplay+'</td>' +
-        '</tr>';
-    });
-
-    html += '</tbody></table>';
-    wrap.innerHTML = html;
-  }
-}
-
-function resetDetailFilters() {
-  ['dFilterManager','dFilterBrand','dDateFrom','dDateTo','dFilterStatus','dSearch']
-    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  renderDetail();
-}
-
-// ══════════════════════════════════════════════
-// LICENSE
-// ══════════════════════════════════════════════
-function renderLicenseSummaryGlobal() {
-  let exp=0, soon=0, ok=0;
-  appData.license.forEach(r=>{ const s=getLicenseStatus(r); if(s==='expired')exp++; else if(s==='soon')soon++; else ok++; });
-  document.getElementById('licenseBannerText').innerHTML =
-    '인허가 알림 &mdash; 🟡 30일 이내 임박 <strong>'+soon+'건</strong> / 🟢 정상 <strong>'+ok+'건</strong>';
-  document.getElementById('licenseShortcutBadges').innerHTML =
-    '<span class="badge">🟡 임박 '+soon+'건</span><span class="badge">🟢 정상 '+ok+'건</span>';
-}
-
-function renderLicense(fromFilter) {
-  if (fromFilter) licPage = 1;
-  const data = appData.license;
-  let exp=0, soon=0, ok=0;
-  data.forEach(r=>{ const s=getLicenseStatus(r); if(s==='expired')exp++; else if(s==='soon')soon++; else ok++; });
-  document.getElementById('ls1').textContent = exp;
-  document.getElementById('ls2').textContent = soon;
-  document.getElementById('ls3').textContent = ok;
-
-  const srch = document.getElementById('licSearch').value.toLowerCase().trim();
-  const cFil = document.getElementById('licCountry').value;
-  const sFil = document.getElementById('licStatus').value;
-
-  const countries = [...new Set(data.map(r=>r.country).filter(Boolean))].sort();
-  const licC = document.getElementById('licCountry');
-  licC.innerHTML = '<option value="">전체</option>'+countries.map(c=>'<option>'+c+'</option>').join('');
-  licC.value = cFil;
-
-  let rows = [...data];
-  if (srch) rows=rows.filter(r=>(r.country+r.brand+r.product+r.engName).toLowerCase().includes(srch));
-  if (cFil) rows=rows.filter(r=>r.country===cFil);
-  if (sFil) rows=rows.filter(r=>getLicenseStatus(r)===sFil);
-
-  // [#1] 정렬: 정상(ok) → 임박(soon) → 만료(expired)
-  const sOrd = { ok:0, soon:1, expired:2 };
-  rows.sort((a,b) => {
-    const sa=getLicenseStatus(a), sb=getLicenseStatus(b);
-    if (sOrd[sa]!==sOrd[sb]) return sOrd[sa]-sOrd[sb];
-    return (a.expiryDate||Infinity)-(b.expiryDate||Infinity);
-  });
-
-  const totalCount = rows.length;
-  document.getElementById('licResultCount').textContent='총 '+totalCount+'건';
-  const wrap=document.getElementById('licenseTableWrap');
-  const pagDiv=document.getElementById('licPagination');
-  if (!totalCount){
-    wrap.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">해당 조건의 데이터가 없습니다</div></div>';
-    pagDiv.style.display='none'; return;
-  }
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / LIC_PER_PAGE));
-  if (licPage > totalPages) licPage = totalPages;
-  const pageRows = rows.slice((licPage-1)*LIC_PER_PAGE, licPage*LIC_PER_PAGE);
-
-  const lsInfo={
-    expired:{cls:'expired',label:'🔴 만료됨'},
-    soon:   {cls:'soon',   label:'🟡 임박'  },
-    ok:     {cls:'ok',     label:'🟢 정상'  }
-  };
-
-  wrap.innerHTML='<table><thead><tr>'+
-    '<th>국가</th><th>인허가서류</th><th>회사명</th><th>브랜드</th><th>품목명</th>'+
-    '<th>영문명</th><th>제조사</th><th>등록번호</th><th>등록일</th><th>만료일</th><th>상태</th>'+
-    '</tr></thead><tbody>'+pageRows.map(r=>{
-      const ls  = getLicenseStatus(r);
-      const inf = lsInfo[ls];
-      const expiryDateOnly = r.expiryDate ? fmtDate(r.expiryDate) : '—';
-      return '<tr>'+
-        '<td>'+r.country+'</td><td>'+r.docType+'</td><td>'+r.company+'</td>'+
-        '<td>'+r.brand+'</td><td>'+r.product+'</td>'+
-        '<td style="font-size:0.76rem;color:#666;">'+r.engName+'</td>'+
-        '<td>'+r.maker+'</td><td style="font-size:0.76rem;">'+r.regNo+'</td>'+
-        '<td>'+fmtDate(r.regDate)+'</td>'+
-        '<td>'+expiryDateOnly+'</td>'+
-        '<td><span class="expiry-badge '+inf.cls+'">'+inf.label+'</span></td>'+
-        '</tr>';
-    }).join('')+'</tbody></table>';
-
-  // ── 페이지네이션 렌더링 ──
-  if (totalPages <= 1) { pagDiv.style.display='none'; return; }
-  pagDiv.style.display='flex';
-  const btnStyle='style="min-width:32px;height:32px;border-radius:7px;border:1.5px solid #CBD5E0;background:#fff;color:#444;font-size:0.82rem;font-weight:600;cursor:pointer;padding:0 8px;transition:background 0.15s,color 0.15s;"';
-  const activeBtnStyle='style="min-width:32px;height:32px;border-radius:7px;border:1.5px solid #1565C0;background:#1565C0;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;padding:0 8px;"';
-  let pHtml = '<button '+btnStyle+' onclick="changeLicPage('+Math.max(1,licPage-1)+')" '+(licPage===1?'disabled style="opacity:0.4;cursor:default;min-width:32px;height:32px;border-radius:7px;border:1.5px solid #CBD5E0;background:#fff;color:#CCC;font-size:0.82rem;padding:0 8px;"':'')+'>&#8592;</button>';
-  const rangeStart = Math.max(1, licPage-2);
-  const rangeEnd   = Math.min(totalPages, licPage+2);
-  if (rangeStart > 1) pHtml += '<button '+btnStyle+' onclick="changeLicPage(1)">1</button>';
-  if (rangeStart > 2) pHtml += '<span style="padding:0 4px;color:#999;font-size:0.82rem;">…</span>';
-  for (let p=rangeStart; p<=rangeEnd; p++) {
-    pHtml += '<button '+(p===licPage?activeBtnStyle:btnStyle)+' onclick="changeLicPage('+p+')">'+p+'</button>';
-  }
-  if (rangeEnd < totalPages-1) pHtml += '<span style="padding:0 4px;color:#999;font-size:0.82rem;">…</span>';
-  if (rangeEnd < totalPages)   pHtml += '<button '+btnStyle+' onclick="changeLicPage('+totalPages+')">'+totalPages+'</button>';
-  pHtml += '<button '+btnStyle+' onclick="changeLicPage('+Math.min(totalPages,licPage+1)+')" '+(licPage===totalPages?'disabled style="opacity:0.4;cursor:default;min-width:32px;height:32px;border-radius:7px;border:1.5px solid #CBD5E0;background:#fff;color:#CCC;font-size:0.82rem;padding:0 8px;"':'')+'>&#8594;</button>';
-  pHtml += '<span style="margin-left:8px;font-size:0.78rem;color:#888;">'+licPage+' / '+totalPages+' 페이지 &nbsp;(총 '+totalCount+'건)</span>';
-  pagDiv.innerHTML = pHtml;
-}
-
-function changeLicPage(n) {
-  licPage = n;
-  renderLicense();
-  document.getElementById('licenseTableWrap').scrollTop = 0;
-}
-
-function resetLicenseFilters() {
-  document.getElementById('licSearch').value  = '';
-  document.getElementById('licCountry').value = '';
-  document.getElementById('licStatus').value  = '';
-  licPage = 1;
-  renderLicense();
-}
-
-// ══════════════════════════════════════════════
-// GUIDE PAGE
-// ══════════════════════════════════════════════
-function getGuideSections(content) {
-  if (!content) return [];
-  return content.split('\n')
-    .map(l => l.trim())
-    .filter(l => /^\d+\./.test(l))
-    .map(l => l.replace(/^(\d+\.)\s*/, '$1 ').slice(0, 28));
-}
-
-function renderGuideCards() {
-  const data = appData.guide;
-  if (!data || !data.length) return;
-  const grid = document.getElementById('guideCardGrid');
-  grid.innerHTML = data.map((item, i) => {
-    const color    = GUIDE_COLORS[i % GUIDE_COLORS.length];
-    const icon     = GUIDE_ICONS[i % GUIDE_ICONS.length];
-    const sections = getGuideSections(item.content);
-    const chips    = sections.map((s, si) =>
-      '<span class="guide-section-chip" title="'+escHtml(s)+' 섹션으로 이동" onclick="event.stopPropagation();openGuideSection('+i+','+si+')">'+escHtml(s)+'</span>'
-    ).join('');
-    const countLabel = sections.length ? sections.length+'개 항목' : '';
-    return '<div class="guide-card" onclick="openGuideDetail('+i+')">'+
-      '<div class="guide-card-bar" style="background:'+color+'"></div>'+
-      '<div class="guide-card-icon-wrap"><span class="guide-card-icon">'+icon+'</span></div>'+
-      '<div class="guide-card-meta">'+
-        '<div class="guide-card-title" style="color:'+color+';">'+item.col+'</div>'+
-        '<div class="guide-card-count">'+countLabel+'</div>'+
-      '</div>'+
-      '<div class="guide-card-sections">'+(chips || '<span style="color:#CCC;font-size:0.76rem;">내용 없음</span>')+'</div>'+
-      '</div>';
-  }).join('');
-}
-
-function openGuideSection(cardIdx, sectionIdx) {
-  currentGuideIdx = cardIdx;
-  buildGuideNav();
-  document.getElementById('guideSearch').value = '';
-  renderGuideContent();
-  goPage('page-guide-detail');
-  setTimeout(function() {
-    const body = document.getElementById('guideContentBody');
-    const titles = body.querySelectorAll('.g-section-title');
-    const target = titles[sectionIdx];
-    if (!target) return;
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // 도착 후 잠깐 강조 표시
-    target.style.transition = 'background 0.2s';
-    target.style.background = '#FFFDE7';
-    target.style.borderRadius = '4px';
-    target.style.padding = '2px 6px';
-    setTimeout(function() {
-      target.style.background = '';
-      target.style.padding = '';
-    }, 1800);
-  }, 80);
-}
-
-function openGuideDetail(idx) {
-  currentGuideIdx = idx;
-  buildGuideNav();
-  document.getElementById('guideSearch').value = '';
-  renderGuideContent();
-  goPage('page-guide-detail');
-}
-
-function buildGuideNav() {
-  const data = appData.guide;
-  const nav  = document.getElementById('guideNavList');
-  nav.innerHTML = data.map((item, i) => {
-    const color  = GUIDE_COLORS[i % GUIDE_COLORS.length];
-    const icon   = GUIDE_ICONS[i % GUIDE_ICONS.length];
-    const active = i === currentGuideIdx ? 'active' : '';
-    return '<div class="guide-nav-item '+active+'" onclick="selectGuideItem('+i+')" style="'+(active?'border-left-color:'+color+';':'')+'">'+
-      '<span class="nav-dot" style="background:'+color+'"></span>'+
-      '<span>'+icon+' '+item.col+'</span>'+
-      '</div>';
-  }).join('');
-}
-
-function selectGuideItem(idx) {
-  currentGuideIdx = idx;
-  document.querySelectorAll('.guide-nav-item').forEach((el,i)=>{
-    const color = GUIDE_COLORS[i % GUIDE_COLORS.length];
-    el.classList.toggle('active', i===idx);
-    el.style.borderLeftColor = i===idx ? color : 'transparent';
-  });
-  document.getElementById('guideSearch').value = '';
-  renderGuideContent();
-}
-
-function renderGuideContent() {
-  const data = appData.guide;
-  if (!data || !data[currentGuideIdx]) return;
-  const item    = data[currentGuideIdx];
-  const color   = GUIDE_COLORS[currentGuideIdx % GUIDE_COLORS.length];
-  const icon    = GUIDE_ICONS[currentGuideIdx % GUIDE_ICONS.length];
-  const keyword = document.getElementById('guideSearch').value.trim();
-
-  document.getElementById('guideContentTitle').innerHTML =
-    '<span style="color:'+color+';font-size:1.4rem;">'+icon+'</span> '+item.col;
-
-  const rawLines = (item.content||'').split('\n');
-  const bodyEl   = document.getElementById('guideContentBody');
-
-  if (!rawLines.some(l=>l.trim())) {
-    bodyEl.innerHTML = '<div class="guide-no-result">내용이 없습니다.</div>';
-    return;
-  }
-
-  let linesToShow = rawLines;
-  if (keyword) {
-    const kw      = keyword.toLowerCase();
-    const matched = rawLines.filter(l => l.toLowerCase().includes(kw));
-    if (!matched.length) {
-      bodyEl.innerHTML = '<div class="guide-no-result">🔍 "<strong>'+escHtml(keyword)+'</strong>" 검색 결과가 없습니다.</div>';
-      return;
-    }
-    linesToShow = matched;
-  }
-
-  let html = '';
-  linesToShow.forEach(line => {
-    const t = line.trim();
-    if (!t) { html += '<div class="g-empty"></div>'; return; }
-    if (/^(\d+\.|🇨🇦|🇬🇧|🇪🇺|🇦🇺|🇯🇵|🇦🇪|🇹🇭|🇲🇾|🇻🇳|🇸🇬)/.test(t)) {
-      html += '<div class="g-section-title">'+highlight(escHtml(t), keyword)+'</div>';
-    } else {
-      html += '<div class="g-line">'+highlight(escHtml(t), keyword)+'</div>';
-    }
-  });
-  bodyEl.innerHTML = html;
-
-  if (keyword) {
-    const firstHL = bodyEl.querySelector('.guide-highlight');
-    if (firstHL) firstHL.scrollIntoView({block:'nearest'});
-  }
-}
-
-function highlight(html, keyword) {
-  if (!keyword) return html;
-  const kw = escHtml(keyword);
-  const re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
-  return html.replace(re, m => '<span class="guide-highlight">'+m+'</span>');
-}
-
-function clearGuideSearch() {
-  document.getElementById('guideSearch').value = '';
-  renderGuideContent();
-}
-
-
-// ══════════════════════════════════════════════
-// FREIGHT TREND LIST (수정 2)
-// ══════════════════════════════════════════════
-function renderFreightTrendList() {
-  const el = document.getElementById('freightTrendList');
-  if (!el) return;
-  const seaRows = appData.kor3pl.filter(r => r.transport==='해상' && r.seaFreight && r.shipDate);
-  const byCountry = {};
-  seaRows.forEach(r => {
-    const c = r.country||'미정';
-    if (!byCountry[c]) byCountry[c] = {total:0, cnt:0, last:null};
-    byCountry[c].total += r.seaFreight;
-    byCountry[c].cnt++;
-    if (!byCountry[c].last || r.shipDate > byCountry[c].last) byCountry[c].last = r.shipDate;
-  });
-  const keys = Object.keys(byCountry).sort((a,b)=>byCountry[b].total-byCountry[a].total);
-  if (!keys.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">해상 운임 데이터가 없습니다.</div></div>';
-    return;
-  }
-  el.innerHTML = keys.map((c,i) => {
-    const color = getCountryColor(c);
-    const avg = Math.round(byCountry[c].total / byCountry[c].cnt);
-    return '<div class="freight-trend-row" data-country="'+escHtml(c)+'" onclick="openFreightPage(this.dataset.country,\'\')">'+
-      '<div class="freight-trend-bar" style="background:'+color+'"></div>' +
-      '<div class="freight-trend-country">'+escHtml(c)+'</div>' +
-      '<div class="freight-trend-amt">평균 ₩'+avg.toLocaleString()+' ('+byCountry[c].cnt+'건)</div>' +
-      '<div class="freight-trend-badge">차트 보기 →</div>' +
-      '</div>';
-  }).join('');
-}
-
-// ══════════════════════════════════════════════
-// FREIGHT PAGE (수정 3)
-// ══════════════════════════════════════════════
-let freightChartInst = null;
-let freightViewMode = 'all'; // 'all' | 'filter'
-
-function setFreightMode(mode) {
-  freightViewMode = mode;
-  document.getElementById('fModeAll').classList.toggle('active', mode==='all');
-  document.getElementById('fModeFilter').classList.toggle('active', mode==='filter');
-  const wrap = document.getElementById('freightFilterWrap');
-  wrap.classList.toggle('disabled', mode==='all');
-  renderFreightChart();
-}
-
-function openFreightPage(country, brand) {
-  goPage('page-freight');
-  initFreightFilters();
-  if (country) {
-    setFreightMode('filter');
-    const sel = document.getElementById('fCountry');
-    Array.from(sel.options).forEach(o => { o.selected = (o.value===country); });
-    if (brand) {
-      const bSel = document.getElementById('fBrand');
-      Array.from(bSel.options).forEach(o => { o.selected = (o.value===brand); });
-    }
-  } else {
-    setFreightMode('all');
-  }
-  renderFreightChart();
-}
-
-function initFreightFilters() {
-  const rows = appData.kor3pl.filter(r => r.transport==='해상' && r.seaFreight && r.shipDate);
-  const countries = [...new Set(rows.map(r=>r.country||'미정'))].sort();
-  const brands    = [...new Set(rows.map(r=>r.brand||'미정'))].sort();
-  const cSel = document.getElementById('fCountry');
-  const bSel = document.getElementById('fBrand');
-  cSel.innerHTML = countries.map(c=>'<option value="'+escHtml(c)+'">'+escHtml(c)+'</option>').join('');
-  bSel.innerHTML = brands.map(b=>'<option value="'+escHtml(b)+'">'+escHtml(b)+'</option>').join('');
-  Array.from(cSel.options).forEach(o=>o.selected=true);
-  Array.from(bSel.options).forEach(o=>o.selected=true);
-}
-
-function renderFreightChart() {
-  const cSel = document.getElementById('fCountry');
-  const bSel = document.getElementById('fBrand');
-  if (!cSel || !bSel) return;
-  let rows;
-  if (freightViewMode === 'all') {
-    rows = appData.kor3pl.filter(r => r.transport==='해상' && r.seaFreight && r.shipDate);
-  } else {
-    const selCountries = Array.from(cSel.selectedOptions).map(o=>o.value);
-    const selBrands    = Array.from(bSel.selectedOptions).map(o=>o.value);
-    rows = appData.kor3pl.filter(r =>
-      r.transport==='해상' && r.seaFreight && r.shipDate &&
-      selCountries.includes(r.country||'미정') &&
-      selBrands.includes(r.brand||'미정')
-    );
-  }
-  const byCountry = {};
-  rows.forEach(r => {
-    const c = r.country||'미정';
-    if (!byCountry[c]) byCountry[c] = [];
-    byCountry[c].push(r);
-  });
-  const datasets = Object.keys(byCountry).sort().map((country,i) => {
-    const color = getCountryColor(country);
-    const data = byCountry[country]
-      .filter(r=>r.shipDate)
-      .sort((a,b)=>a.shipDate-b.shipDate)
-      .map(r=>({
-        x: r.shipDate.getTime(),
-        y: r.seaFreight,
-        invoice: r.invoice,
-        country: country
-      }));
-    return {
-      label: country, data: data,
-      borderColor: color, backgroundColor: color+'33',
-      pointBackgroundColor: color, pointRadius: 6, pointHoverRadius: 8,
-      showLine: true, tension: 0.3, _hidden: false
-    };
-  });
-  const canvas = document.getElementById('freightChart');
-  if (freightChartInst) { freightChartInst.destroy(); freightChartInst = null; }
-  if (!datasets.length) { renderFreightLegend([]); return; }
-  freightChartInst = new Chart(canvas, {
-    type: 'scatter',
-    data: { datasets: datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: function(ctx) {
-          const pt = ctx.raw, d = new Date(pt.x);
-          const ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-          return [ctx.dataset.label+' | '+pt.invoice, ds+' | ₩'+pt.y.toLocaleString()];
-        }}}
-      },
-      scales: {
-        x: { type:'linear', ticks:{ callback:function(v){ const d=new Date(v); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }, maxTicksLimit:8 }, grid:{ color:'#EEF0F4' } },
-        y: { beginAtZero:false, ticks:{ callback:function(v){ return '₩'+(v/10000).toFixed(0)+'만'; } }, grid:{ color:'#EEF0F4' } }
-      },
-      onClick: function(event, elements) {
-        if (!elements.length) return;
-        const el = elements[0], ds = freightChartInst.data.datasets[el.datasetIndex], pt = ds.data[el.index];
-        openCountryDetail(pt.country);
-        setTimeout(function(){ document.getElementById('dSearch').value = pt.invoice; renderDetail(); }, 80);
-      }
-    }
-  });
-  renderFreightLegend(datasets);
-}
-
-function renderFreightLegend(datasets) {
-  const legend = document.getElementById('freightLegend');
-  if (!legend) return;
-  legend.innerHTML = datasets.map((ds,i) =>
-    '<div class="freight-legend-item'+(ds._hidden?' hidden':'')+'" onclick="toggleFreightDataset('+i+')">'+
-    '<div class="freight-legend-dot" style="background:'+ds.borderColor+'"></div>'+
-    '<span>'+escHtml(ds.label)+'</span></div>'
-  ).join('');
-}
-
-function toggleFreightDataset(idx) {
-  if (!freightChartInst) return;
-  const meta = freightChartInst.getDatasetMeta(idx);
-  meta.hidden = !meta.hidden;
-  freightChartInst.data.datasets[idx]._hidden = meta.hidden;
-  freightChartInst.update();
-  renderFreightLegend(freightChartInst.data.datasets);
-}
-
-function resetFreightFilters() { initFreightFilters(); setFreightMode('all'); }
-
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
-function init() {
-  appData = genDummy();
-  initKpiDates();
-  renderAll();
-}
-
-init();
-</script>
-</body>
-</html>
+  document.getElement
